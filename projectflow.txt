@@ -1,0 +1,5 @@
+Buiding Pipeline
+1. clone a git repo in local add experiments folder
+2. add src folder along with all components (run them individually)
+3. add data, models, reports directions to .gitignore file
+4. new git add commit push
