@@ -3,6 +3,7 @@ import numpy as np
 import os
 import logging
 from sklearn.feature_extraction.text import TfidfVectorizer
+import yaml 
 
 # Ensure the log directory
 log_dir = "log"
@@ -24,6 +25,27 @@ file_handler.setFormatter(formatter)
 
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
+
+# Load yaml file
+
+def load_params(file_path: str)-> dict:
+    '''Load yaml file for feature engineering'''
+    try:
+        with open(file_path, 'r') as file:
+            params = yaml.safe_load(file)
+        logger.debug("yaml file for feature engineering loaded succesfully..")
+        return params
+    except FileNotFoundError as e:
+        logger.debug("File not found in the given path %s", file_path)
+        raise
+    except yaml.YAMLError as e:
+        logger.debug("yaml Error occured %s", e)
+        raise
+    except Exception as e:
+        logger.exception("Unexpected Error happened %s", e)
+        raise
+        
+
 
 def load_data(file_path:str) -> pd.DataFrame:
     '''Load data from csv file'''
@@ -80,7 +102,8 @@ def save_data(df : pd.DataFrame, file_path: str) -> None:
 
 def main():
     try:
-        max_features = 50
+        params = load_params(file_path = 'params.yaml')
+        max_features = params['feature_engineering']['max_features']
         train_data = load_data('./data/interim/processed_train.csv')
         test_data = load_data('./data/interim/processed_test.csv')
 

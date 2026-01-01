@@ -4,6 +4,7 @@ import logging
 import pickle
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
+import yaml
 
 # Esure the log directory 
 log_dir = 'log'
@@ -25,6 +26,25 @@ file_handler.setFormatter(formatter)
 
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
+
+# Load yaml file
+
+def load_params(file_path: str) -> dict:
+    'load yaml for model_trainig'
+    try:
+        with open(file_path, 'r') as file:
+            params = yaml.safe_load(file)
+        logger.debug("yaml file for model traing loaded succesfully ..")
+        return params
+    except FileNotFoundError as e:
+        logger.debug("File not found on given file path %s", file_path)
+        raise
+    except yaml.YAMLError as e:
+        logger.debug("yaml error occured %s", e)
+        raise
+    except Exception as e:
+        logger.exception(f"Unexpected error occured {e}")
+        raise
 
 def load_data(file_path : str) -> pd.DataFrame:
     '''
@@ -105,12 +125,13 @@ def save_model(file_path: str, model) -> None:
 
 def main():
     try:
-        param = {'n_estimators' : 25, 'random_state' : 2}
+        #params = {'n_estimators' : 25, 'random_state' : 2}
+        params = load_params(file_path = 'params.yaml')['model_training']
         train_data = load_data('./data/processed/train_tfidf.csv')
         x_train = train_data.iloc[:,:-1]
         y_train  =train_data.iloc[:,-1]
 
-        clf = train_model(x_train, y_train, param)
+        clf = train_model(x_train, y_train, params)
 
         model_save_path  = 'models/model.pkl'
         save_model(model_save_path, clf)
